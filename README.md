@@ -1,3 +1,3 @@
 # pzwm_monitor
 Repositorio pzem
-![alt text](https://raw.githubusercontent.com/pioioTwo/pzem_monitor/path/to/img.png)
+![Exemplo](https://raw.githubusercontent.com/pioioTwo/pzem_monitor/CAZE_PZEM.png)
