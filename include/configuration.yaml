@@ -1,0 +1,122 @@
+# Sensor Pzem que esta dentro do quadro de energia do terreo
+# Mensura a tensão consumida no terreo.
+##
+
+#
+input_text:
+  text_valor_kwh:
+    name: "Valor kW/h"
+    initial: "0.9339" # Valor do kW/h
+
+utility_meter:
+  ### Valores do Primeiro sensor do terreo ####
+  consumo_hoje:
+    source: sensor.conversao_kwh
+    cycle: daily
+    offset: "00:00:00"
+  consumo_semana:
+    source: sensor.conversao_kwh
+    cycle: weekly
+  consumo_mes:
+    source: sensor.conversao_kwh
+    cycle: monthly
+    offset:
+      days: 1
+      hours: 0
+      minutes: 0
+
+#Medidor de energia Pzem
+sensor:
+  - platform: mqtt
+    name: "Tensão"
+    state_topic: "house/pzem1/V/"
+    unit_of_measurement: "V"
+    icon: mdi:flash
+    #
+  - platform: mqtt
+    name: "corrente_medida"
+    state_topic: "house/pzem1/I/"
+    #
+  - platform: mqtt
+    name: "potencia_medida"
+    state_topic: "house/pzem1/W/"
+    #
+  - platform: mqtt
+    name: "potencia_consumida_medida"
+    state_topic: "house/pzem1/Wh/"
+    #
+  - platform: mqtt
+    name: "Frequencia da Rede"
+    state_topic: "house/pzem1/Hz/"
+    unit_of_measurement: "Hz"
+    icon: mdi:sine-wave
+    #
+  - platform: mqtt
+    name: "Fator de Potencia"
+    state_topic: "house/pzem1/pf/"
+    unit_of_measurement: "pf"
+    icon: mdi:percent
+    #
+  #Conversão
+  - platform: template
+    sensors:
+      # Conversão da corrente / numero de voltas
+      conversao_corrente:
+        friendly_name: "Corrente"
+        icon_template: mdi:current-ac
+        value_template: "{{ (states('sensor.corrente_medida')|float / 2 |float)|round(2)  }}"
+        unit_of_measurement: "A"
+      #
+      conversao_w:
+        friendly_name: "Potencia"
+        icon_template: mdi:power-plug
+        value_template: "{{ (states('sensor.potencia_medida')|float / 2 |float)|round(2)  }}"
+        unit_of_measurement: "W"
+      #
+      conversao_kwh:
+        friendly_name: "Potencia Consumida"
+        icon_template: mdi:power-plug
+        value_template: "{{ (states('sensor.potencia_consumida_medida')|float / 2 |float)|round(2)  }}"
+        unit_of_measurement: "kw/h"
+      #
+  # Guarda o valores atuais
+  - platform: template
+    sensors:
+      consumo_diario:
+        friendly_name: "Consumo Diario"
+        icon_template: mdi:counter
+        unit_of_measurement: "kW/h"
+        value_template: "{{ ( float(states.sensor.consumo_hoje.state) ) | round(2) }}"
+      consumo_semanal:
+        friendly_name: "Consumo Semanal"
+        icon_template: mdi:counter
+        unit_of_measurement: "kW/h"
+        value_template: "{{ ( float(states.sensor.consumo_semana.state) ) | round(2) }}"
+      consumo_mensal:
+        friendly_name: "Consumo Mensal"
+        icon_template: mdi:counter
+        unit_of_measurement: "kW/h"
+        value_template: "{{ ( float(states.sensor.consumo_mes.state) ) | round(2) }}"
+      # FA Dia anterior
+      consumo_ontem:
+        friendly_name: "Consumo Ontem"
+        icon_template: mdi:counter
+        unit_of_measurement: "kWh"
+        value_template: "{{ ( float(states.sensor.consumo_hoje.attributes.last_period) ) | round(2) }}"
+
+      gasto_hoje:
+        friendly_name: "Gasto Hoje"
+        #icon_template: mdi:cash-usd
+        unit_of_measurement: "R$"
+        value_template: "{{ ( float(states.sensor.consumo_diario.state) * float(states.input_text.text_valor_kwh.state) ) | round(2) }}"
+      gasto_semanal:
+        friendly_name: "Gasto na semana"
+        #icon_template: mdi:cash-usd
+        unit_of_measurement: "R$"
+        value_template: "{{ ( float(states.sensor.consumo_semanal.state) * float(states.input_text.text_valor_kwh.state) ) | round(2) }}"
+      gasto_mes:
+        friendly_name: "Gasto no mês"
+        #icon_template: mdi:cash-usd
+        unit_of_measurement: "R$"
+        value_template: "{{ ( float(states.sensor.consumo_mensal.state) * float(states.input_text.text_valor_kwh.state) ) | round(2) }}"
+#Fim do Pzem
