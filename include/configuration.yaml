@@ -2,12 +2,12 @@
 # Mensura a tensão consumida no terreo.
 ##
 
-#
+# Valor do kW/h da sua localidade
 input_text:
   text_valor_kwh:
     name: "Valor kW/h"
-    initial: "0.9339" # Valor do kW/h
-
+    initial: "0.17787" # Valor do kW/h
+#
 utility_meter:
   ### Valores do Primeiro sensor do terreo ####
   consumo_hoje:
@@ -103,20 +103,21 @@ sensor:
         icon_template: mdi:counter
         unit_of_measurement: "kWh"
         value_template: "{{ ( float(states.sensor.consumo_hoje.attributes.last_period) ) | round(2) }}"
-
+      #
+      #Calcula os Gastos
       gasto_hoje:
         friendly_name: "Gasto Hoje"
-        #icon_template: mdi:cash-usd
+        icon_template: mdi:cash-usd
         unit_of_measurement: "R$"
         value_template: "{{ ( float(states.sensor.consumo_diario.state) * float(states.input_text.text_valor_kwh.state) ) | round(2) }}"
       gasto_semanal:
         friendly_name: "Gasto na semana"
-        #icon_template: mdi:cash-usd
+        icon_template: mdi:cash-usd
         unit_of_measurement: "R$"
         value_template: "{{ ( float(states.sensor.consumo_semanal.state) * float(states.input_text.text_valor_kwh.state) ) | round(2) }}"
       gasto_mes:
         friendly_name: "Gasto no mês"
-        #icon_template: mdi:cash-usd
+        icon_template: mdi:cash-usd
         unit_of_measurement: "R$"
         value_template: "{{ ( float(states.sensor.consumo_mensal.state) * float(states.input_text.text_valor_kwh.state) ) | round(2) }}"
 #Fim do Pzem
